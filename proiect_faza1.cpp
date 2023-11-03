@@ -131,7 +131,7 @@ public:
 	Imprimanta(int capacitate, string marca) :codProducator(3745) {
 		this->capacitate = capacitate;
 		this->marca = marca;
-		this->greutate = 3.9;
+		this->greutate = 3.9f;
 		this->imprimari = 0;
 		this->nrPaginiImprimare = nullptr;
 	}
@@ -142,9 +142,48 @@ public:
 
 	friend void verificaGarantie(Imprimanta &imprimanta, Frigider& frigider);
 	friend void verificaFunctionalitate(Imprimanta &imprimanta, Tableta &tableta);
-};
 
+	const Imprimanta& operator= (const Imprimanta& imprimanta) {
+		if (this != &imprimanta) {
+			if (this->nrPaginiImprimare != NULL)
+				delete[]this->nrPaginiImprimare;
+			this->capacitate = imprimanta.capacitate;
+			this->marca = imprimanta.marca;
+			this->greutate = imprimanta.greutate;
+			this->imprimari = imprimanta.imprimari;
+			this->nrPaginiImprimare = imprimanta.nrPaginiImprimare;
+		}
+		return *this;
+	}
+
+	Imprimanta operator+ (int valoare) {
+		Imprimanta aux = *this;
+		aux.capacitate = this->capacitate + valoare;
+		return aux;
+	}
+
+	Imprimanta operator- (float valoare) {
+		Imprimanta aux = *this;
+		aux.greutate = this->greutate - valoare;
+		return aux;
+	}
+
+	friend ostream& operator<<(ostream& out, Imprimanta imprimanta);
+	
+};
 string Imprimanta::format = "A4";
+
+ostream& operator<<(ostream& out, Imprimanta imprimanta) {
+	out << "Imprimanta " << imprimanta.marca << " are o capacitate de " << imprimanta.capacitate<< " si o greutate de " << imprimanta.greutate << " kg." << "Acesta a imprimat de " << imprimanta.imprimari << " de ori. " << endl;
+
+	if (imprimanta.imprimari) {
+		out << "Numarul de pagini per imprimare: ";
+		for (int i = 0; i < imprimanta.imprimari; i++)
+			out << imprimanta.nrPaginiImprimare[i];
+	}
+	return out;
+}
+
 
 class Imprimanta;
 class Tableta {
@@ -163,14 +202,14 @@ public:
 		cout << "Tableta cu sistemul de operare " << this->sistemDeOperare << " cu o memorie de " << this->memorieRAM << " GB si cu o grosime de " << this->grosime << " mm are o conexiune de tipul " << conexiune << " ." << " Are un numar de " << this->nrAplicatii << " aplicatii." << endl;
 
 		if (this->nrAplicatii) {
-			cout << "Tableta are " << this->nrAplicatii << " aplicatii." << endl << " Aplicatiile au id-urile: ";
+			cout << "Tableta are " << this->nrAplicatii << " aplicatii." << endl << "Aplicatiile au id-urile: ";
 			for (int i = 0; i < this->nrAplicatii; i++)
 				cout << this->listaAplicatii[i] << " ";
 			cout << endl;
 			cout << endl;
 		}
 		else
-			cout << "Nu are aplicatii.";
+			cout << "Nu are aplicatii."<< endl;
 	}
 
 	static string getConexiune() {
@@ -243,7 +282,7 @@ public:
 	Tableta(int memorieRAM, string sistemDeOperare) :codProdus(115) {
 		this->memorieRAM = memorieRAM;
 		this->sistemDeOperare = sistemDeOperare;
-		this->grosime = 8.95;
+		this->grosime = 8.95f;
 		this->SIM = true;
 		this->nrAplicatii = 0;
 		this->listaAplicatii = nullptr;
@@ -261,7 +300,7 @@ public:
 	Tableta() :codProdus(115) {
 		this->memorieRAM = 4;
 		this->sistemDeOperare = "Android";
-		this->grosime = 8.95;
+		this->grosime = 8.95f;
 		this->SIM = true;
 		this->nrAplicatii = 0;
 		this->listaAplicatii = nullptr;
@@ -272,9 +311,51 @@ public:
 	}
 
 	friend void verificaFunctionalitate(Imprimanta &imprimanta, Tableta &tableta);
-};
 
+	const Tableta& operator= (const Tableta& tableta) {
+		if (this != &tableta) {
+			if (this->listaAplicatii != NULL)
+				delete[]this->listaAplicatii;
+			this->memorieRAM = tableta.memorieRAM;
+			this->sistemDeOperare = tableta.sistemDeOperare;
+			this->grosime = tableta.grosime;
+			this->SIM = tableta.SIM;
+			this->nrAplicatii = tableta.nrAplicatii;
+			this->listaAplicatii = tableta.listaAplicatii;
+		}
+		return *this;
+	}
+
+	Tableta operator++() {
+		this->memorieRAM++;
+		return *this;
+	}
+
+	friend ostream& operator<<(ostream& out, Tableta tableta);
+
+	int operator[](int index) {
+		if (index >= 0 && index < nrAplicatii) {
+			return listaAplicatii[index];
+		}
+	}
+
+};
 string Tableta::conexiune = "Wifi";
+
+ostream& operator<<(ostream& out, Tableta tableta){
+	out << "Tableta cu sistemul de operare " << tableta.sistemDeOperare << " cu o memorie de " << tableta.memorieRAM<< " GB si cu o grosime de " << tableta.grosime << " mm." << " Are un numar de " << tableta.nrAplicatii << " aplicatii." << endl;
+
+		if (tableta.nrAplicatii) {
+			out << "Tableta are " << tableta.nrAplicatii << " aplicatii." << endl << "Aplicatiile au id-urile: ";
+			for (int i = 0; i < tableta.nrAplicatii; i++)
+				out << tableta.listaAplicatii[i] << " ";
+			out << endl;
+			out << endl;
+		}
+		else
+			out << "Nu are aplicatii." << endl;
+	return out;
+}
 
 class Frigider {
 private:
@@ -351,7 +432,7 @@ public:
 	}
 
 	Frigider() : volum(41) {
-		this->adancime = 54.2;
+		this->adancime = 54.2f;
 		this->nrRafturi = 3;
 		this->culoare = "gri";
 		this->temperaturaRafturi = new int[this->nrRafturi];
@@ -360,7 +441,7 @@ public:
 	}
 
 	Frigider(string culoare, int nrRafturi) : volum(41) {
-		this->adancime = 54.2;
+		this->adancime = 54.2f;
 		this->nrRafturi = nrRafturi;
 		this->culoare = culoare;
 		this->temperaturaRafturi = new int[this->nrRafturi];
@@ -382,16 +463,54 @@ public:
 	}
 
 	friend void verificaGarantie(Imprimanta &imprimanta, Frigider &frigider);
+
+	const Frigider& operator= (const Frigider& frigider) {
+		if (this != &frigider) {
+			if (this->temperaturaRafturi != NULL)
+				delete[]this->temperaturaRafturi;
+			this->adancime = frigider.adancime;
+			this->nrRafturi = frigider.nrRafturi;
+			this->culoare = frigider.culoare;
+			this->temperaturaRafturi = new int[this->nrRafturi];
+			for (int i = 0; i < this->nrRafturi; i++)
+				this->temperaturaRafturi[i] = frigider.temperaturaRafturi[i];
+		}
+		return *this;
+	}
+
+	friend ostream& operator<<(ostream& out, Frigider frigider);
+
+	Frigider* operator->() {
+		this->nrRafturi = 5;
+		return this;
+	}
+
+	Frigider operator--() {
+		this->adancime--;
+		return *this;
+	}
 };
 
 string Frigider::materialRafturi = "Sticla";
 
+ostream& operator<<(ostream& out, Frigider frigider) {
+	out << "Frigiderul de culoare " << frigider.culoare << " are o adancime de " << frigider.adancime << " cm, are " << frigider.nrRafturi << " rafturi" << endl;
+	if (frigider.nrRafturi) {
+		cout << "Temperaturile de pe rafturi sunt: ";
+		for (int i = 0; i < frigider.nrRafturi; i++)
+			cout << frigider.temperaturaRafturi[i] << " ";
+	}
+	out << endl;
+	out << endl;
+	return out;
+}
+
 void verificaGarantie(Imprimanta& imprimanta, Frigider &frigider) {
 	if ((imprimanta.imprimari) != 0 && frigider.temperaturaRafturi != 0) {
-		std::cout << "Garantia pentru Imprimanta si Frigider este valabila." << std::endl;
+		cout << "Garantia pentru Imprimanta si Frigider este valabila." << endl;
 	}
 	else {
-		std::cout << "Garantia pentru Imprimanta si Frigider nu este valabila." << std::endl;
+		cout << "Garantia pentru Imprimanta si Frigider nu este valabila." << endl;
 	}
 }
 
@@ -407,7 +526,7 @@ void verificaFunctionalitate(Imprimanta& imprimanta, Tableta& tableta) {
 void main() {
 	Imprimanta imprimanta;
 	imprimanta.afisareImprimanta();
-	Imprimanta imprimanta1(80, "Canon", 3.9, 0);
+	Imprimanta imprimanta1(80, "Canon", 3.9f, 0);
 	imprimanta1.afisareImprimanta();
 	Imprimanta imprimanta2(60, "HP");
 	imprimanta2.afisareImprimanta();
@@ -433,7 +552,7 @@ void main() {
 	Frigider frigider;
 	frigider.afisareFrigider();
 	int* temperaturirafturi = new int[3] {3, 1, 4};
-	Frigider frigider1("gri", 3, 54.7, temperaturirafturi);
+	Frigider frigider1("gri", 3, 54.7f, temperaturirafturi);
 	frigider1.afisareFrigider();
 
 	frigider1.setTemperatura(1, 4);
@@ -453,7 +572,7 @@ void main() {
 	cout << "Capacitatea imprimantei: " << imprimanta3.getCapacitate() << " coli." << endl;
 	imprimanta3.setMarca("Canon");
 	cout << "Marca imprimantei: " << imprimanta3.getMarca() << endl;
-	imprimanta3.setGreutate(4.3);
+	imprimanta3.setGreutate(4.3f);
 	cout << "Greutatea imprimantei: " << imprimanta3.getGreutate() << endl;
 	imprimanta3.ImprimaPagini(11);
 	cout << "Numarul total de pagini imprimate: " << imprimanta3.ImprimaPagini(0) << endl;
@@ -463,6 +582,8 @@ void main() {
 	cout << endl;
 	Imprimanta imprimanta4 = imprimanta2;
 	imprimanta2.afisareImprimanta();
+	cout << endl;
+
 
 	cout << endl;
 	Tableta tableta4;
@@ -500,5 +621,65 @@ void main() {
 	verificaGarantie(imprimanta, frigider);
 
 	verificaFunctionalitate(imprimanta, tableta);
+	cout << endl;
+
+	//Faza 3
+
+	Imprimanta imprimanta6;
+	imprimanta6=imprimanta2;
+	cout << imprimanta6;
+
+	Imprimanta imprimanta7;
+	imprimanta7 = imprimanta2 + 10;
+	cout << imprimanta7;
+
+	cout << endl;
+	cout << imprimanta2;
+	Imprimanta imprimanta8;
+	imprimanta8 = imprimanta2 - 3.5f;
+	cout << imprimanta8;
+
+	cout << endl;
+	Tableta tableta8;
+	tableta8 = tableta1;
+	cout << tableta8;
+
+	cout << endl;
+	Tableta tableta6;
+	tableta6 = tableta3;
+	cout<< tableta6;
+	cout << endl;
+
+	cout << endl;
+	cout<< tableta3;
+	cout << endl;
+	++tableta3;
+	cout << tableta3;
+
+	cout << endl;
+	Tableta tableta11(32,"iOS",5,new int[5]{14,20,34,7,22});
+	cout<<tableta11[0];
+	cout << endl;
+
+	cout << endl;
+	Frigider frigider9;
+	frigider9 = frigider;
+	cout << frigider9;
+
+	cout << endl;
+	Frigider frigider6;
+	frigider6 = frigider1;
+	frigider6.afisareFrigider();
+	cout << endl;
+
+	Frigider frigider7;
+	frigider7.setNrRafturi(1);
+	cout << frigider7.getnrRafturi() << endl;
+	cout << frigider7->getnrRafturi() << endl;
+	cout << endl;
+
+	cout << frigider;
+	--frigider;
+	cout << frigider;
 
 }
