@@ -606,6 +606,124 @@ void verificaFunctionalitate(Imprimanta& imprimanta, Tableta& tableta) {
 	}
 }
 
+//Faza5
+class Raft {
+private:
+	int capacitateMaxima;
+	float inaltimeRaft;
+	bool areObiecte;
+	Tableta* tableta;
+	int nrTablete;
+public:
+	
+	Raft() {
+		this->capacitateMaxima = 153;
+		this->inaltimeRaft = 123.4f;
+		this->areObiecte = false;
+		this->tableta = NULL;
+		this->nrTablete = 0;
+	}
+
+	Raft(int capacitateMaxima, int nrTablete,Tableta*tablete) {
+		this->capacitateMaxima = capacitateMaxima;
+		this->inaltimeRaft = 123.4f;
+		this->areObiecte = false;
+		this->tableta = new Tableta[nrTablete];
+		for (int i = 0; i < nrTablete; i++) {
+			this->tableta[i] = tableta[i];
+		}
+		this->nrTablete = nrTablete;
+	}
+
+	Raft(const Raft& r) {
+		this->capacitateMaxima = r.capacitateMaxima;
+		this->inaltimeRaft = r.inaltimeRaft;
+		this->areObiecte = r.areObiecte;
+		this->tableta = new Tableta[nrTablete];
+		for (int i = 0; i < r.nrTablete; i++) {
+			this->tableta[i] = r.tableta[i];
+		}
+		this->nrTablete = r.nrTablete;
+	}
+
+	~Raft() {
+		delete[]this->tableta;
+	}
+
+	int getCapacitateMax() {
+		return this->capacitateMaxima;
+	}
+
+	void setCapacitateMax(int capacitateMaxima) {
+		this->capacitateMaxima = capacitateMaxima;
+	}
+
+	float getInaltimeRaft() {
+		return this->inaltimeRaft;
+	}
+
+	void setInaltimeRaft(float inaltimeRaft) {
+		this->inaltimeRaft = inaltimeRaft;
+	}
+
+	bool getAreObiecte() {
+		return this->areObiecte;
+	}
+
+	void setAreObiecte(bool areObiecte) {
+		this->areObiecte = areObiecte;
+	}
+
+	friend ostream& operator<<(ostream& out, Raft& r);
+	friend istream& operator>>(istream& in, Raft& r);
+
+	Raft operator!() {
+		Raft copie = *this;
+		this->areObiecte = !copie.areObiecte;
+		return copie;
+	}
+
+};
+
+istream& operator>>(istream& in, Raft& r) {
+	cout << "\nCapacitatea totala a raftului: ";
+	in >> r.capacitateMaxima;
+	cout << "\nAre o inaltime de: ";
+	in >> r.inaltimeRaft;
+	cout << "\nAre obiecte? 1-Da, 0-Nu";
+	in >> r.areObiecte;
+	cout << "\nNr tablete:  ";
+	in >> r.nrTablete;
+	r.tableta = new Tableta[r.nrTablete];
+	cout << "\nTabletele: ";
+	for (int i = 0; i < r.nrTablete; i++) {
+		in >> r.tableta[i];
+	}
+	return in;
+}
+
+ostream& operator<<(ostream& out, Raft& r) {
+	out << "\nRaftul are o capacitate maxima de " << r.capacitateMaxima;
+	if (r.areObiecte) {
+		out << "\nPe raft sunt obiecte!";
+	}
+	else {
+		out << "\nPe raft nu sunt obiecte!";
+	}
+	out << "\nAre o inaltime de: " << r.inaltimeRaft<<" metri.";
+	out << "\nAre un numar de " << r.nrTablete << " tablete.";
+	if (r.nrTablete) {
+		out << "\Tabletele sunt: ";
+		for (int i = 0; i < r.nrTablete; i++) {
+			out << "\nTableta: " << (i + 1) << " : " << r.tableta[i]<<" ";
+		}
+	}
+	else {
+		out << "\nNu are obiecte de tipul tableta!" << endl;
+	}
+	return out;
+}
+
 void main() {
 	Imprimanta imprimanta;
 	imprimanta.afisareImprimanta();
@@ -860,4 +978,46 @@ void main() {
 		}
 	}
 	cout << endl;
+
+	if (vimprimanta != NULL) {
+		delete[]vimprimanta;
+	}
+
+	if (vtableta != NULL) {
+		delete[]vtableta;
+	}
+
+	if (vfrigider != NULL) {
+		delete[]vfrigider;
+	}
+
+	if (nrLinii != 0) {
+		for (int i = 0; i < nrColoane; i++) {
+			delete[]matriceTableta;
+		}
+	}
+
+	if (matriceTableta != NULL) {
+		delete[]matriceTableta;
+	}
+	
+	//Faza5
+	//geteri si seteri
+	cout << endl;
+	Raft raft;
+	raft.setCapacitateMax(100);
+	cout << "\n\nCapacitate maxima: " << raft.getCapacitateMax();
+	raft.setAreObiecte(true);
+	cout << "\nAre obiecte 1-Da, 0-Nu"<<"  "<<raft.getAreObiecte();
+	raft.setInaltimeRaft(34.5f);
+	cout << "\nAre o inaltime de: " << raft.getInaltimeRaft()<<" metri.";
+
+	Raft raft1;
+	cin >> raft1;
+	cout << raft1;
+	cout << endl;
+
+	cout << endl;
+	!raft1;
+	cout << raft1;
 }
