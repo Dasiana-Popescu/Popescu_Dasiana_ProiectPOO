@@ -1,4 +1,5 @@
 #include<iostream>
+#include<fstream>
 
 using namespace std;
 
@@ -172,6 +173,10 @@ public:
 
 	friend istream& operator>>(istream& in, Imprimanta& imprimanta);
 
+	friend ofstream& operator<<(ofstream& out, Imprimanta& imprimanta);
+
+	friend ifstream& operator>>(ifstream& in, Imprimanta& imprimanta);
+
 };
 string Imprimanta::format = "A4";
 
@@ -211,6 +216,32 @@ ostream& operator<<(ostream& out, const Imprimanta& imprimanta) {
 	return out;
 }
 
+ifstream& operator>>(ifstream& in, Imprimanta& imprimanta)
+{
+	in >> imprimanta.marca;
+	in >> imprimanta.capacitate;
+	in >> imprimanta.greutate;
+	in >> imprimanta.imprimari;
+	if (imprimanta.nrPaginiImprimare != NULL)
+	{
+		delete[]imprimanta.nrPaginiImprimare;
+	}
+	imprimanta.nrPaginiImprimare = new int[imprimanta.imprimari];
+	for (int i = 0; i < imprimanta.imprimari; i++)
+	{
+		in >> imprimanta.nrPaginiImprimare[i];
+	}
+	return in;
+}
+
+ofstream& operator<<(ofstream& out, Imprimanta& imprimanta) {
+	out << imprimanta.marca <<"\n"<< imprimanta.capacitate <<"\n" << imprimanta.greutate << "\n"<< imprimanta.imprimari << "\n" ;
+	if (imprimanta.imprimari) {
+		for (int i = 0; i < imprimanta.imprimari; i++)
+			out << imprimanta.nrPaginiImprimare[i]<<" ";
+	}
+	return out;
+}
 
 class Imprimanta;
 class Tableta {
@@ -368,6 +399,10 @@ public:
 
 	friend istream& operator>>(istream& in, Tableta& tableta);
 
+	friend ofstream& operator<<(ofstream& out, Tableta& tableta);
+
+	friend ifstream& operator>>(ifstream& in, Tableta& tableta);
+
 	int operator[](int index) {
 		if (index >= 0 && index < nrAplicatii) {
 			return listaAplicatii[index];
@@ -412,6 +447,33 @@ istream& operator>>(istream& in, Tableta& tableta)
 		cout << "\nID-ul aplicatiei: " << (i + 1) << " : ";
 		in >> tableta.listaAplicatii[i];
 
+	}
+	return in;
+}
+
+ofstream& operator<<(ofstream& out, Tableta& tableta) {
+	out << tableta.sistemDeOperare << "\n" << tableta.memorieRAM << "\n" << tableta.grosime << "\n" << tableta.nrAplicatii <<"\n";
+	if (tableta.nrAplicatii) {
+		out << tableta.nrAplicatii << "\n";
+		for (int i = 0; i < tableta.nrAplicatii; i++)
+			out << tableta.listaAplicatii[i] << " ";
+	}
+	return out;
+}
+
+ifstream& operator>>(ifstream& in, Tableta& tableta) {
+	in >> tableta.sistemDeOperare;
+	in >> tableta.memorieRAM;
+	in >> tableta.grosime;
+	in >> tableta.nrAplicatii;
+	if (tableta.listaAplicatii != NULL)
+	{
+		delete[]tableta.listaAplicatii;
+	}
+	tableta.listaAplicatii = new int[tableta.nrAplicatii];
+	for (int i = 0; i < tableta.nrAplicatii; i++)
+	{
+		in >> tableta.listaAplicatii[i];
 	}
 	return in;
 }
@@ -541,6 +603,10 @@ public:
 
 	friend istream& operator>>(istream& in, Frigider& frigider);
 
+	friend ofstream& operator<<(ofstream& out, Frigider& frigider);
+
+	friend ifstream& operator>>(ifstream& in, Frigider& frigider);
+
 	Frigider* operator->() {
 		this->nrRafturi = 5;
 		return this;
@@ -550,6 +616,39 @@ public:
 		this->adancime--;
 		return *this;
 	}
+
+	void scriereInFisBinFrigider(fstream& f) {
+		f.write((char*)&this->adancime, sizeof(float));
+		f.write((char*)&this->nrRafturi, sizeof(int));
+
+		int lungime = this->culoare.length();
+		f.write((char*)&lungime, sizeof(int));
+
+		for (int i = 0; i < lungime; i++) {
+			f.write((char*)&this->culoare[i], sizeof(char));
+		}
+
+		for (int i = 0; i < this->nrRafturi; i++) {
+			f.write((char*)&this->temperaturaRafturi[i], sizeof(int));
+		}
+	}
+
+	void citesteDinFisBinFrigider(fstream& f) {
+		f.read((char*)(&adancime), sizeof(float));
+		f.read((char*)(&nrRafturi), sizeof(int));
+
+		int culoareLength;
+		f.read((char*)(&culoareLength), sizeof(int));
+		char* culoareBuffer = new char[culoareLength + 1];
+		f.read(culoareBuffer, culoareLength);
+		culoareBuffer[culoareLength] = '\0';
+		culoare = culoareBuffer;
+		delete[] culoareBuffer;
+
+		temperaturaRafturi = new int[nrRafturi];
+		f.read((char*)(temperaturaRafturi), sizeof(int) * nrRafturi);
+	}
+	
 };
 
 string Frigider::materialRafturi = "Sticla";
@@ -584,6 +683,34 @@ istream& operator>>(istream& in, Frigider& frigider)
 		cout << "\nTemperatura raftului:" << i + 1 << " : ";
 		in >> frigider.temperaturaRafturi[i];
 
+	}
+	return in;
+}
+
+ofstream& operator<<(ofstream& out, Frigider& frigider) {
+	out << "Frigiderul de culoare " << frigider.culoare << " are o adancime de " << frigider.adancime << " cm, are " << frigider.nrRafturi << " rafturi." << endl;
+	if (frigider.nrRafturi) {
+		out << "Temperaturile de pe rafturi sunt: ";
+		for (int i = 0; i < frigider.nrRafturi; i++)
+			out << frigider.temperaturaRafturi[i] << " ";
+	}
+	out << endl;
+	out << endl;
+	return out;
+}
+
+ifstream& operator>>(ifstream& in, Frigider& frigider) {
+	in >> frigider.culoare;
+	in >> frigider.adancime;
+	in >> frigider.nrRafturi;
+	if (frigider.temperaturaRafturi != NULL)
+	{
+		delete[]frigider.temperaturaRafturi;
+	}
+	frigider.temperaturaRafturi = new int[frigider.nrRafturi];
+	for (int i = 0; i < frigider.nrRafturi; i++)
+	{
+		in >> frigider.temperaturaRafturi[i];
 	}
 	return in;
 }
@@ -639,7 +766,7 @@ public:
 		this->capacitateMaxima = r.capacitateMaxima;
 		this->inaltimeRaft = r.inaltimeRaft;
 		this->areObiecte = r.areObiecte;
-		this->tableta = new Tableta[nrTablete];
+		this->tableta = new Tableta[r.nrTablete];
 		for (int i = 0; i < r.nrTablete; i++) {
 			this->tableta[i] = r.tableta[i];
 		}
@@ -676,11 +803,36 @@ public:
 
 	friend ostream& operator<<(ostream& out, Raft& r);
 	friend istream& operator>>(istream& in, Raft& r);
+	friend ifstream& operator>>(ifstream& in, Raft& r);
+	friend ofstream& operator<<(ofstream& out, Raft& r);
 
 	Raft operator!() {
 		Raft copie = *this;
 		this->areObiecte = !copie.areObiecte;
 		return copie;
+	}
+
+	void scriereInFisBinRaft(fstream& f) {
+		f.write((char*)&this->capacitateMaxima, sizeof(int));
+		f.write((char*)&this->areObiecte, sizeof(bool));
+		f.write((char*)&this->inaltimeRaft, sizeof(float));
+		for (int i = 0; i < this->nrTablete; i++) {
+			f.write((char*)&this->tableta[i], sizeof(Tableta));
+		}
+	}
+
+	void citesteDinFisBinRaft(fstream& f) {
+		f.read((char*)&this->capacitateMaxima, sizeof(int));
+		f.read((char*)&this->areObiecte, sizeof(bool));
+		f.read((char*)&this->inaltimeRaft, sizeof(float));
+		if (this->tableta != NULL) {
+			delete[]this->tableta;
+		}
+		f.read((char*)&this->nrTablete, sizeof(int));
+		this->tableta = new Tableta[this->nrTablete];
+		for (int i = 0; i < this->nrTablete; i++) {
+			f.read((char*)&this->tableta[i], sizeof(char));
+		}
 	}
 
 };
@@ -716,6 +868,40 @@ ostream& operator<<(ostream& out, Raft& r) {
 		out << "\Tabletele sunt: ";
 		for (int i = 0; i < r.nrTablete; i++) {
 			out << "\nTableta: " << (i + 1) << " : " << r.tableta[i]<<" ";
+		}
+	}
+	else {
+		out << "\nNu are obiecte de tipul tableta!" << endl;
+	}
+	return out;
+}
+
+ifstream& operator>>(ifstream& in, Raft& r) {
+	in >> r.capacitateMaxima;
+	in >> r.inaltimeRaft;
+	in >> r.areObiecte;
+	in >> r.nrTablete;
+	r.tableta = new Tableta[r.nrTablete];
+	for (int i = 0; i < r.nrTablete; i++) {
+		in >> r.tableta[i];
+	}
+	return in;
+}
+
+ofstream& operator<<(ofstream& out, Raft& r) {
+	out << "\nRaftul are o capacitate maxima de " << r.capacitateMaxima;
+	if (r.areObiecte) {
+		out << "\nPe raft sunt obiecte!";
+	}
+	else {
+		out << "\nPe raft nu sunt obiecte!";
+	}
+	out << "\nAre o inaltime de: " << r.inaltimeRaft << " metri.";
+	out << "\nAre un numar de " << r.nrTablete << " tablete.";
+	if (r.nrTablete) {
+		out << "\Tabletele sunt: ";
+		for (int i = 0; i < r.nrTablete; i++) {
+			out << "\nTableta: " << (i + 1) << " : " << r.tableta[i] << " ";
 		}
 	}
 	else {
@@ -766,258 +952,309 @@ void main() {
 	for (int i = 0; i < frigider1.getnrRafturi(); i++)
 		cout << "Temperatura actualizata a frigiderului: " << frigider1.getTemperatura()[i] << " grade Celsius" << endl;
 
-	//Faza 2
-	cout << endl;
-	Imprimanta imprimanta3;
-	imprimanta3.setCapacitate(50);
-	cout << "Capacitatea imprimantei: " << imprimanta3.getCapacitate() << " coli." << endl;
-	imprimanta3.setMarca("Canon");
-	cout << "Marca imprimantei: " << imprimanta3.getMarca() << endl;
-	imprimanta3.setGreutate(4.3f);
-	cout << "Greutatea imprimantei: " << imprimanta3.getGreutate() << endl;
-	imprimanta3.ImprimaPagini(11);
-	cout << "Numarul total de pagini imprimate: " << imprimanta3.ImprimaPagini(0) << endl;
-	imprimanta3.setFormat("A4");
-	cout << "Formatul este: " << imprimanta3.getFormat() << endl;
-	cout << "Codul producatorului este: " << imprimanta3.getCodProducator();
-	cout << endl;
-	Imprimanta imprimanta4 = imprimanta2;
-	imprimanta2.afisareImprimanta();
-	cout << endl;
+	////Faza 2
+	//cout << endl;
+	//Imprimanta imprimanta3;
+	//imprimanta3.setCapacitate(50);
+	//cout << "Capacitatea imprimantei: " << imprimanta3.getCapacitate() << " coli." << endl;
+	//imprimanta3.setMarca("Canon");
+	//cout << "Marca imprimantei: " << imprimanta3.getMarca() << endl;
+	//imprimanta3.setGreutate(4.3f);
+	//cout << "Greutatea imprimantei: " << imprimanta3.getGreutate() << endl;
+	//imprimanta3.ImprimaPagini(11);
+	//cout << "Numarul total de pagini imprimate: " << imprimanta3.ImprimaPagini(0) << endl;
+	//imprimanta3.setFormat("A4");
+	//cout << "Formatul este: " << imprimanta3.getFormat() << endl;
+	//cout << "Codul producatorului este: " << imprimanta3.getCodProducator();
+	//cout << endl;
+	//Imprimanta imprimanta4 = imprimanta2;
+	//imprimanta2.afisareImprimanta();
+	//cout << endl;
 
 
-	cout << endl;
-	Tableta tableta4;
-	tableta4.setMemorie(8);
-	cout << "Memoria tabletei: " << tableta4.getMemorie() << endl;
-	tableta4.setGrosime(7.85);
-	cout << "Grosimea tabletei: " << tableta4.getGrosime() << endl;
-	tableta4.setSistemDeOperare("iOS");
-	cout << "Sistemul de operare al tabletei: " << tableta4.getSistemDeOperare() << endl;
-	tableta4.setConexiune("Wifi");
-	cout << "Conexiune se realizeaza prin: " << tableta4.getConexiune() << endl;
-	cout << "Codul produsului este: " << tableta4.getCodProdus() << endl;
-	Tableta tableta7 = tableta3;
-	tableta7.afisareTableta();
-	cout << endl;
+	//cout << endl;
+	//Tableta tableta4;
+	//tableta4.setMemorie(8);
+	//cout << "Memoria tabletei: " << tableta4.getMemorie() << endl;
+	//tableta4.setGrosime(7.85);
+	//cout << "Grosimea tabletei: " << tableta4.getGrosime() << endl;
+	//tableta4.setSistemDeOperare("iOS");
+	//cout << "Sistemul de operare al tabletei: " << tableta4.getSistemDeOperare() << endl;
+	//tableta4.setConexiune("Wifi");
+	//cout << "Conexiune se realizeaza prin: " << tableta4.getConexiune() << endl;
+	//cout << "Codul produsului este: " << tableta4.getCodProdus() << endl;
+	//Tableta tableta7 = tableta3;
+	//tableta7.afisareTableta();
+	//cout << endl;
 
-	cout << endl;
-	Frigider frigider55;
-	Frigider frigider2 = frigider55;
-	frigider2.setCuloare("Alb");
-	cout << "Culoarea frigiderului este: " << frigider2.getCuloare() << endl;
-	frigider2.setNrRafturi(7);
-	cout << "Frigiderul are un numar de " << frigider2.getnrRafturi() << " rafturi." << endl;
-	frigider2.setAdancime(45.6);
-	cout << "Frigiderul are o adancime de " << frigider2.getAdancime() << endl;
-	frigider2.getMaterialRafturi();
-	cout << "Rafturile sunt din: " << frigider2.getMaterialRafturi() << endl;
-	cout << "Volumul frigiderului este de: " << frigider2.getVolum();
+	//cout << endl;
+	//Frigider frigider55;
+	//Frigider frigider2 = frigider55;
+	//frigider2.setCuloare("Alb");
+	//cout << "Culoarea frigiderului este: " << frigider2.getCuloare() << endl;
+	//frigider2.setNrRafturi(7);
+	//cout << "Frigiderul are un numar de " << frigider2.getnrRafturi() << " rafturi." << endl;
+	//frigider2.setAdancime(45.6);
+	//cout << "Frigiderul are o adancime de " << frigider2.getAdancime() << endl;
+	//frigider2.getMaterialRafturi();
+	//cout << "Rafturile sunt din: " << frigider2.getMaterialRafturi() << endl;
+	//cout << "Volumul frigiderului este de: " << frigider2.getVolum();
 
-	cout << endl;
+	//cout << endl;
 
-	imprimanta.ImprimaPagini(100);
-	frigider.setTemperatura(1, 4);
-	cout << endl;
-	verificaGarantie(imprimanta, frigider);
+	//imprimanta.ImprimaPagini(100);
+	//frigider.setTemperatura(1, 4);
+	//cout << endl;
+	//verificaGarantie(imprimanta, frigider);
 
-	verificaFunctionalitate(imprimanta, tableta);
-	cout << endl;
+	//verificaFunctionalitate(imprimanta, tableta);
+	//cout << endl;
 
-	//Faza 3
+	////Faza 3
 
-	Imprimanta imprimanta6;
-	imprimanta6 = imprimanta2;
-	cout << imprimanta6;
+	//Imprimanta imprimanta6;
+	//imprimanta6 = imprimanta2;
+	//cout << imprimanta6;
 
-	Imprimanta imprimanta7;
-	imprimanta7 = imprimanta2 + 10;
-	cout << imprimanta7;
+	//Imprimanta imprimanta7;
+	//imprimanta7 = imprimanta2 + 10;
+	//cout << imprimanta7;
 
-	cout << endl;
-	cout << imprimanta2;
-	Imprimanta imprimanta8;
-	imprimanta8 = imprimanta2 - 3.5f;
-	cout << imprimanta8;
+	//cout << endl;
+	//cout << imprimanta2;
+	//Imprimanta imprimanta8;
+	//imprimanta8 = imprimanta2 - 3.5f;
+	//cout << imprimanta8;
 
-	cout << endl;
-	Tableta tableta8;
-	tableta8 = tableta1;
-	cout << tableta8;
+	//cout << endl;
+	//Tableta tableta8;
+	//tableta8 = tableta1;
+	//cout << tableta8;
 
-	cout << endl;
-	Tableta tableta6;
-	tableta6 = tableta3;
-	cout << tableta6;
-	cout << endl;
+	//cout << endl;
+	//Tableta tableta6;
+	//tableta6 = tableta3;
+	//cout << tableta6;
+	//cout << endl;
 
-	cout << endl;
-	cout << tableta3;
-	cout << endl;
-	++tableta3;
-	cout << tableta3;
-	cout << endl;
-	tableta3++;
-	cout << tableta3;
+	//cout << endl;
+	//cout << tableta3;
+	//cout << endl;
+	//++tableta3;
+	//cout << tableta3;
+	//cout << endl;
+	//tableta3++;
+	//cout << tableta3;
 
-	cout << endl;
-	Tableta tableta11(32, "iOS", 5, new int[5] {14, 20, 34, 7, 22});
-	cout << tableta11[0];
-	cout << endl;
+	//cout << endl;
+	//Tableta tableta11(32, "iOS", 5, new int[5] {14, 20, 34, 7, 22});
+	//cout << tableta11[0];
+	//cout << endl;
 
-	cout << endl;
-	Frigider frigider9;
-	frigider9 = frigider;
-	cout << frigider9;
+	//cout << endl;
+	//Frigider frigider9;
+	//frigider9 = frigider;
+	//cout << frigider9;
 
-	cout << endl;
-	Frigider frigider6;
-	frigider6 = frigider1;
-	frigider6.afisareFrigider();
-	cout << endl;
+	//cout << endl;
+	//Frigider frigider6;
+	//frigider6 = frigider1;
+	//frigider6.afisareFrigider();
+	//cout << endl;
 
-	Frigider frigider7;
-	frigider7.setNrRafturi(1);
-	cout << frigider7.getnrRafturi() << endl;
-	cout << frigider7->getnrRafturi() << endl;
-	cout << endl;
+	//Frigider frigider7;
+	//frigider7.setNrRafturi(1);
+	//cout << frigider7.getnrRafturi() << endl;
+	//cout << frigider7->getnrRafturi() << endl;
+	//cout << endl;
 
-	cout << frigider;
-	--frigider;
-	cout << frigider;
+	//cout << frigider;
+	//--frigider;
+	//cout << frigider;
 
-	//Faza4
+	////Faza4
 
-	Imprimanta imprimanta20;
-	cin >> imprimanta20;
-	cout << imprimanta20;
-	cout << endl;
+	//Imprimanta imprimanta20;
+	//cin >> imprimanta20;
+	//cout << imprimanta20;
+	//cout << endl;
 
-    Tableta tableta10;
-	cin >> tableta10;
-	cout << tableta10;
-	cout << endl;
+ //   Tableta tableta10;
+	//cin >> tableta10;
+	//cout << tableta10;
+	//cout << endl;
 
-	Frigider frigider8;
-	cin >> frigider8;
-	cout << frigider8;
+	//Frigider frigider8;
+	//cin >> frigider8;
+	//cout << frigider8;
 
-	//Vector Imprimanta
-	int nrObiecteImprimanta = 0;
-	cout << "Numarul de imprimante: ";
-	cin >> nrObiecteImprimanta;
-	Imprimanta* vimprimanta = new Imprimanta[nrObiecteImprimanta];
-	for (int i = 0; i < nrObiecteImprimanta; i++) {
-		cout << "Citire imprimanta cu numarul: " << (i + 1) << " : ";
-		cin >> vimprimanta[i];
-	}
-	for (int i = 0; i < nrObiecteImprimanta; i++) {
-		cout << "Imprimanta cu numarul : " << (i + 1) << " : ";
-		vimprimanta[i].afisareImprimanta();
-		cout << endl;
-	}
-	cout << endl;
+	////Vector Imprimanta
+	//int nrObiecteImprimanta = 0;
+	//cout << "Numarul de imprimante: ";
+	//cin >> nrObiecteImprimanta;
+	//Imprimanta* vimprimanta = new Imprimanta[nrObiecteImprimanta];
+	//for (int i = 0; i < nrObiecteImprimanta; i++) {
+	//	cout << "Citire imprimanta cu numarul: " << (i + 1) << " : ";
+	//	cin >> vimprimanta[i];
+	//}
+	//for (int i = 0; i < nrObiecteImprimanta; i++) {
+	//	cout << "Imprimanta cu numarul : " << (i + 1) << " : ";
+	//	vimprimanta[i].afisareImprimanta();
+	//	cout << endl;
+	//}
+	//cout << endl;
 
-	//Vector Tableta
-	int nrObiecte = 0;
-	cout << "Numarul de tablete: ";
-	cin >> nrObiecte;
-	Tableta* vtableta = new Tableta[nrObiecte];
-	for (int i = 0; i < nrObiecte; i++) {
-		cout << "Citire tableta cu numarul: " << (i + 1) << " : ";
-		cin >> vtableta[i];
-	}
-	for (int i = 0; i < nrObiecte; i++) {
-		cout << "Tableta cu numarul : " << (i + 1) << " : ";
-		vtableta[i].afisareTableta();
-		cout << endl;
-	}
-	cout << endl;
+	////Vector Tableta
+	//int nrObiecte = 0;
+	//cout << "Numarul de tablete: ";
+	//cin >> nrObiecte;
+	//Tableta* vtableta = new Tableta[nrObiecte];
+	//for (int i = 0; i < nrObiecte; i++) {
+	//	cout << "Citire tableta cu numarul: " << (i + 1) << " : ";
+	//	cin >> vtableta[i];
+	//}
+	//for (int i = 0; i < nrObiecte; i++) {
+	//	cout << "Tableta cu numarul : " << (i + 1) << " : ";
+	//	vtableta[i].afisareTableta();
+	//	cout << endl;
+	//}
+	//cout << endl;
 
-	//Vector Frigider
-	int nrObiecteFrigider = 0;
-	cout << "Numarul de frigidere: ";
-	cin >> nrObiecteFrigider;
-	Frigider* vfrigider = new Frigider[nrObiecteFrigider];
-	for (int i = 0; i < nrObiecteFrigider; i++) {
-		cout << "Citire frigider cu numarul: " << (i + 1) << " : ";
-		cin >> vfrigider[i];
-	}
-	for (int i = 0; i < nrObiecteFrigider; i++) {
-		cout << "Frigiderul cu numarul : " << (i + 1) << " : ";
-		vfrigider[i].afisareFrigider();
-		cout << endl;
-	}
-	cout << endl;
+	////Vector Frigider
+	//int nrObiecteFrigider = 0;
+	//cout << "Numarul de frigidere: ";
+	//cin >> nrObiecteFrigider;
+	//Frigider* vfrigider = new Frigider[nrObiecteFrigider];
+	//for (int i = 0; i < nrObiecteFrigider; i++) {
+	//	cout << "Citire frigider cu numarul: " << (i + 1) << " : ";
+	//	cin >> vfrigider[i];
+	//}
+	//for (int i = 0; i < nrObiecteFrigider; i++) {
+	//	cout << "Frigiderul cu numarul : " << (i + 1) << " : ";
+	//	vfrigider[i].afisareFrigider();
+	//	cout << endl;
+	//}
+	//cout << endl;
 
-	//Matrice Tableta
-	int nrLinii = 0;
-	int nrColoane = 0;
-	cout << "Nr de linii ale matricei:";
-	cin >> nrLinii;
-	cout << "Nr de coloane ale matricei:";
-	cin >> nrColoane;
-	Tableta** matriceTableta = new Tableta*[nrLinii];
-	for (int i = 0; i < nrLinii; i++) {
-		matriceTableta[i] = new Tableta[nrColoane];
-	}
+	////Matrice Tableta
+	//int nrLinii = 0;
+	//int nrColoane = 0;
+	//cout << "Nr de linii ale matricei:";
+	//cin >> nrLinii;
+	//cout << "Nr de coloane ale matricei:";
+	//cin >> nrColoane;
+	//Tableta** matriceTableta = new Tableta*[nrLinii];
+	//for (int i = 0; i < nrLinii; i++) {
+	//	matriceTableta[i] = new Tableta[nrColoane];
+	//}
 
-	cout << "Citire matrice: " << endl;
-	for (int i = 0; i < nrLinii; i++) {
-		for (int j = 0; j < nrColoane; j++) {
-			cout << "Linia: "<<(i+1)<<" si coloana: "<<(j+1)<<endl;
-			cin >> matriceTableta[i][j];
-		}
-	}
+	//cout << "Citire matrice: " << endl;
+	//for (int i = 0; i < nrLinii; i++) {
+	//	for (int j = 0; j < nrColoane; j++) {
+	//		cout << "Linia: "<<(i+1)<<" si coloana: "<<(j+1)<<endl;
+	//		cin >> matriceTableta[i][j];
+	//	}
+	//}
 
-	cout << "Afisare matrice: " << endl;
-	for (int i = 0; i < nrLinii; i++) {
-		for (int j = 0; j < nrColoane; j++) {
-			cout << "Linia: " << (i + 1) << " si coloana: " << (j + 1) << endl;
-			matriceTableta[i][j].afisareTableta();
-		}
-	}
-	cout << endl;
+	//cout << "Afisare matrice: " << endl;
+	//for (int i = 0; i < nrLinii; i++) {
+	//	for (int j = 0; j < nrColoane; j++) {
+	//		cout << "Linia: " << (i + 1) << " si coloana: " << (j + 1) << endl;
+	//		matriceTableta[i][j].afisareTableta();
+	//	}
+	//}
+	//cout << endl;
 
-	if (vimprimanta != NULL) {
-		delete[]vimprimanta;
-	}
+	//if (vimprimanta != NULL) {
+	//	delete[]vimprimanta;
+	//}
 
-	if (vtableta != NULL) {
-		delete[]vtableta;
-	}
+	//if (vtableta != NULL) {
+	//	delete[]vtableta;
+	//}
 
-	if (vfrigider != NULL) {
-		delete[]vfrigider;
-	}
+	//if (vfrigider != NULL) {
+	//	delete[]vfrigider;
+	//}
 
-	if (nrLinii != 0) {
-		for (int i = 0; i < nrColoane; i++) {
-			delete[]matriceTableta;
-		}
-	}
+	//if (nrLinii != 0) {
+	//	for (int i = 0; i < nrColoane; i++) {
+	//		delete[]matriceTableta;
+	//	}
+	//}
 
-	if (matriceTableta != NULL) {
-		delete[]matriceTableta;
-	}
-	
-	//Faza5
-	//geteri si seteri
-	cout << endl;
-	Raft raft;
-	raft.setCapacitateMax(100);
-	cout << "\n\nCapacitate maxima: " << raft.getCapacitateMax();
-	raft.setAreObiecte(true);
-	cout << "\nAre obiecte 1-Da, 0-Nu"<<"  "<<raft.getAreObiecte();
-	raft.setInaltimeRaft(34.5f);
-	cout << "\nAre o inaltime de: " << raft.getInaltimeRaft()<<" metri.";
+	//if (matriceTableta != NULL) {
+	//	delete[]matriceTableta;
+	//}
+	//
+	////Faza5
+	////geteri si seteri
+	//cout << endl;
+	//Raft raft;
+	//raft.setCapacitateMax(100);
+	//cout << "\n\nCapacitate maxima: " << raft.getCapacitateMax();
+	//raft.setAreObiecte(true);
+	//cout << "\nAre obiecte 1-Da, 0-Nu"<<"  "<<raft.getAreObiecte();
+	//raft.setInaltimeRaft(34.5f);
+	//cout << "\nAre o inaltime de: " << raft.getInaltimeRaft()<<" metri.";
 
-	Raft raft1;
-	cin >> raft1;
-	cout << raft1;
-	cout << endl;
+	//Raft raft1;
+	//cin >> raft1;
+	//cout << raft1;
+	//cout << endl;
 
-	cout << endl;
-	!raft1;
-	cout << raft1;
+	//cout << endl;
+	//!raft1;
+	//cout << raft1;
+
+    //Faza6
+
+    ofstream f("imprimanta.txt",ios::out);
+	Imprimanta imprimanta100;
+	cin >> imprimanta100;
+	f << imprimanta100;
+	f.close();
+
+	ifstream g("imprimanta.txt", ios::in);
+	Imprimanta i1;
+	g >> i1;
+	cout << i1;
+	g.close();
+
+	ofstream a("tableta.txt",ios::out);
+	Tableta tableta100;
+	cin >> tableta100;
+	a << tableta100;
+	a.close();
+
+	ifstream b("tableta.txt", ios::in);
+	Tableta t1;
+	b >> t1;
+	cout << t1;
+	b.close();
+
+    
+    Frigider frigider100;
+	cin >> frigider100;
+	fstream out("frigider.bin", ios::out | ios::binary);
+	frigider100.scriereInFisBinFrigider(out);
+	out.close();
+
+	Frigider frigidercitit;
+	fstream in("frigider.bin", ios::in | ios::binary);
+	frigidercitit.citesteDinFisBinFrigider(in);
+	in.close();
+
+
+    Raft raft100;
+    cin >> raft100;
+    fstream outraft("raft.bin", ios::out | ios::binary);
+    raft100.scriereInFisBinRaft(outraft);
+    outraft.close();
+
+	Raft raftcitit;
+	fstream inraft("raft.bin", ios::in | ios::binary);
+	raftcitit.citesteDinFisBinRaft(inraft);
+	inraft.close();
+
 }
