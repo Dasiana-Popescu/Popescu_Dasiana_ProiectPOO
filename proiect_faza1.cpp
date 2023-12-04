@@ -910,6 +910,142 @@ ofstream& operator<<(ofstream& out, Raft& r) {
 	return out;
 }
 
+//Faza7
+class Xerox : public Imprimanta {
+private:
+	int nrCopiiMaxim;
+	bool areFunctieFax;
+public:
+	void afiseazXerox() {
+		cout << (Imprimanta)*this;
+		cout << endl;
+		cout << "Numarul maxim de copii pe care le poate realiza este: " << this->nrCopiiMaxim << endl;
+		if (this->areFunctieFax) {
+			cout << "Xeroxul are functie fax!";
+		}
+		else {
+			cout << "Nu are functie fax!";
+		}
+		cout << endl;
+	}
+
+	Xerox() : Imprimanta(80, "Canon") {
+		this->nrCopiiMaxim = 30;
+		this->areFunctieFax = true;
+	}
+
+	Xerox(int nrCopiiMaxim, bool areFunctieFax) {
+		this->nrCopiiMaxim = nrCopiiMaxim;
+		this->areFunctieFax = areFunctieFax;
+	}
+
+	Xerox(int nrCopiiMaxim, bool areFunctieFax, int capacitate, string marca, float greutate, int* nrPaginiImprimate) :Imprimanta(capacitate, marca, greutate, nrPaginiImprimate) {
+		this->nrCopiiMaxim = nrCopiiMaxim;
+		this->areFunctieFax = areFunctieFax;
+	}
+
+	Xerox(const Xerox& x) :Imprimanta(x){
+		this->nrCopiiMaxim = x.nrCopiiMaxim;
+		this->areFunctieFax = x.areFunctieFax;
+	}
+
+	Xerox operator=(const Xerox& x) {
+		if (this != &x) {
+			Imprimanta::operator=(x);
+			this->nrCopiiMaxim = x.nrCopiiMaxim;
+			this->areFunctieFax = x.areFunctieFax;
+		}
+		return*this;
+	}
+
+	int getNrCopiiMaxim() {
+		return this->nrCopiiMaxim;
+	}
+
+	void setNrCopiiMaxim(int nrCopiiMaxim) {
+		this->nrCopiiMaxim = nrCopiiMaxim;
+	}
+
+	bool getAreFunctieFax() {
+		return this->areFunctieFax;
+	}
+
+	void setAreFunctieFax(bool areFunctieFax) {
+		this->areFunctieFax = areFunctieFax;
+	}
+
+	~Xerox(){
+
+	}
+};
+
+class TabletaGrafica :public Tableta {
+private:
+	int nivelPresiuneStilou;
+	bool suportaTouch;
+public:
+	void afisareTabletaGrafica() {
+		cout << endl;
+		cout << (Tableta)*this;
+		cout << "Nivel presiune stilou: " << this->nivelPresiuneStilou << endl;
+		if (this->suportaTouch) {
+			cout << "Tableta grafica suporta touch!";
+		}
+		else {
+			cout << "Nu suporta touch!";
+		}
+		cout << endl;
+	}
+
+	TabletaGrafica() :Tableta(128, "iOS") {
+		this->nivelPresiuneStilou = 8192;
+		this->suportaTouch = true;
+	}
+
+	TabletaGrafica(int nivelPresiuneStilou, bool suportaTouch) {
+		this->nivelPresiuneStilou = nivelPresiuneStilou;
+		this->suportaTouch = suportaTouch;
+	}
+
+	TabletaGrafica(int nivelPresiuneStilou, bool suportaTouch, float grosime, string sistemDeOperare, int nrAplicatii, int* listaAplicatii): Tableta(grosime, sistemDeOperare, nrAplicatii, listaAplicatii){
+		this->nivelPresiuneStilou = nivelPresiuneStilou;
+		this->suportaTouch = suportaTouch;
+	}
+
+	TabletaGrafica(const TabletaGrafica& g):Tableta(g) {
+		this->nivelPresiuneStilou = g.nivelPresiuneStilou;
+		this->suportaTouch = g.suportaTouch;
+	}
+
+	TabletaGrafica operator=(const TabletaGrafica& g) {
+		if (this != &g) {
+			this->nivelPresiuneStilou = g.nivelPresiuneStilou;
+			this->suportaTouch = g.suportaTouch;
+		}
+		return *this;
+	}
+
+	int getNivelPresiune() {
+		return this->nivelPresiuneStilou = nivelPresiuneStilou;
+	}
+
+	void setNivelPresiune(int nivelPresiuneStilou) {
+		this->nivelPresiuneStilou = nivelPresiuneStilou;
+	}
+
+	bool getSuportaTouch() {
+		return this->suportaTouch = suportaTouch;
+	}
+
+	void setSuportaTouch(bool suportaTouch) {
+		this->suportaTouch = suportaTouch;
+	}
+
+	~TabletaGrafica() {
+
+	}
+};
+
 void main() {
 	Imprimanta imprimanta;
 	imprimanta.afisareImprimanta();
@@ -1207,9 +1343,9 @@ void main() {
 	//!raft1;
 	//cout << raft1;
 
-    //Faza6
+	//Faza6
 
-    ofstream f("imprimanta.txt",ios::out);
+	/*ofstream f("imprimanta.txt",ios::out);
 	Imprimanta imprimanta100;
 	cin >> imprimanta100;
 	f << imprimanta100;
@@ -1233,8 +1369,8 @@ void main() {
 	cout << t1;
 	b.close();
 
-    
-    Frigider frigider100;
+
+	Frigider frigider100;
 	cin >> frigider100;
 	fstream out("frigider.bin", ios::out | ios::binary);
 	frigider100.scriereInFisBinFrigider(out);
@@ -1246,15 +1382,49 @@ void main() {
 	in.close();
 
 
-    Raft raft100;
-    cin >> raft100;
-    fstream outraft("raft.bin", ios::out | ios::binary);
-    raft100.scriereInFisBinRaft(outraft);
-    outraft.close();
+	Raft raft100;
+	cin >> raft100;
+	fstream outraft("raft.bin", ios::out | ios::binary);
+	raft100.scriereInFisBinRaft(outraft);
+	outraft.close();
 
 	Raft raftcitit;
 	fstream inraft("raft.bin", ios::in | ios::binary);
 	raftcitit.citesteDinFisBinRaft(inraft);
-	inraft.close();
+	inraft.close();*/
+
+	//Faza 7
+	cout << endl;
+	Xerox xerox1;
+	xerox1.afiseazXerox();
+	cout << endl;
+	Xerox xerox2(55, false);
+	xerox2.afiseazXerox();
+	Xerox xerox3 = xerox1;
+	xerox3.afiseazXerox();
+	Xerox xerox4;
+	xerox4.setNrCopiiMaxim(45);
+	cout << "\nNumarul maxim de copii: " << xerox4.getNrCopiiMaxim();
+	xerox4.setAreFunctieFax(false);
+	cout << "\nAre functie fax: 1-Da, altceva-Nu  " << xerox4.getAreFunctieFax();
+	Xerox xerox5;
+	xerox5 = xerox2;
+	xerox5.afiseazXerox();
+
+	cout << endl;
+	TabletaGrafica tg1;
+	tg1.afisareTabletaGrafica();
+	TabletaGrafica tg2(4289, false);
+	tg2.afisareTabletaGrafica();
+	TabletaGrafica tg3 = tg1;
+	tg3.afisareTabletaGrafica();
+	TabletaGrafica tg4;
+	tg4 = tg2;
+	tg4.afisareTabletaGrafica();
+	TabletaGrafica tg5;
+	tg5.setNivelPresiune(7834);
+	cout << "\nNivelul de presiune stilou: " << tg5.getNivelPresiune();
+	tg5.setSuportaTouch(false);
+	cout << "\nTableta grafica suporta touch: 1-Da, 0-Nu   " << tg5.getSuportaTouch();
 
 }
