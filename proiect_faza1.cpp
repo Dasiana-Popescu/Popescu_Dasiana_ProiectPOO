@@ -5,10 +5,21 @@ using namespace std;
 
 //Cele 3 obiecte sunt imprimanta, tableta si laptop. Domeniul este depozit.
 
+class AbstractA {
+public:
+	virtual void metodaAbstractaA() = 0;
+};
+
+class AbstractB {
+public:
+	virtual void metodaAbstractaB() = 0;
+};
+
+
 class Frigider;
 class Tableta;
 
-class Imprimanta {
+class Imprimanta: public AbstractA, public AbstractB {
 private:
 	const int codProducator;
 	static string format;
@@ -19,6 +30,14 @@ private:
 	int* nrPaginiImprimare;
 
 public:
+	void metodaAbstractaA() {
+		cout << "Imprimanta " << this->marca << " are o capacitate de " << this->capacitate << " coli." << endl;
+	}
+
+	void metodaAbstractaB() {
+		cout << "Imprimanta " << this->marca << " are o capacitate de " << this->capacitate << " coli." << endl;
+	}
+
 	void afisareImprimanta() {
 		cout << "Imprimanta " << this->marca << " are o capacitate de " << this->capacitate << " coli de tipul " << this->format << " si o greutate de " << this->greutate << " kg." << "Acesta a imprimat de " << this->imprimari << " de ori. " << endl;
 
@@ -244,7 +263,7 @@ ofstream& operator<<(ofstream& out, Imprimanta& imprimanta) {
 }
 
 class Imprimanta;
-class Tableta {
+class Tableta: public AbstractA, public AbstractB {
 private:
 	static string conexiune;
 	const int codProdus;
@@ -256,6 +275,14 @@ private:
 	bool SIM;
 
 public:
+	void metodaAbstractaA() {
+		cout << "Tableta cu sistemul de operare " << this->sistemDeOperare << " are o memorie de " << this->memorieRAM << " GB." << endl;
+	}
+
+	void metodaAbstractaB() {
+		cout << "Tableta cu sistemul de operare " << this->sistemDeOperare << " are o memorie de " << this->memorieRAM << " GB." << endl;
+	}
+
 	void afisareTableta() {
 		cout << "Tableta cu sistemul de operare " << this->sistemDeOperare << " cu o memorie de " << this->memorieRAM << " GB si cu o grosime de " << this->grosime << " mm are o conexiune de tipul " << conexiune << " ." << " Are un numar de " << this->nrAplicatii << " aplicatii." << endl;
 
@@ -478,7 +505,7 @@ ifstream& operator>>(ifstream& in, Tableta& tableta) {
 	return in;
 }
 
-class Frigider {
+class Frigider: public AbstractA, public AbstractB {
 private:
 	static string materialRafturi;
 	const int volum;
@@ -488,6 +515,14 @@ private:
 	int* temperaturaRafturi;
 
 public:
+	void metodaAbstractaA() {
+		cout << "Frigiderul de culoare " << this->culoare << " are o adancime de " << this->adancime << " cm." << endl;
+	}
+
+	void metodaAbstractaB() {
+		cout << "Frigiderul de culoare " << this->culoare << " are o adancime de " << this->adancime << " cm." << endl;
+	}
+
 	void afisareFrigider() {
 		cout << "Frigiderul de culoare " << this->culoare << " are o adancime de " << this->adancime << " cm, are " << this->nrRafturi << " rafturi" << endl;
 		if (this->nrRafturi) {
@@ -1046,6 +1081,130 @@ public:
 	}
 };
 
+//Clasa Raft(has-a) abstract
+
+class RaftAbstract {
+private:
+	int capacitateMaxima;
+	float inaltimeRaft;
+	bool areObiecte;
+	AbstractA** obiecte;
+	int nrObiecte;
+
+public:
+	RaftAbstract() {
+		this->capacitateMaxima = 153;
+		this->inaltimeRaft = 123.4f;
+		this->areObiecte = false;
+		this->obiecte = NULL;
+		this->nrObiecte = 0;
+	}
+
+	RaftAbstract(int capacitateMaxima, int nrObiecte, AbstractA** obiecte) {
+		this->capacitateMaxima = capacitateMaxima;
+		this->inaltimeRaft = 123.4f;
+		this->areObiecte = false;
+		this->obiecte = new AbstractA * [nrObiecte];
+		for (int i = 0; i < nrObiecte; i++) {
+			this->obiecte[i] = obiecte[i];
+		}
+		this->nrObiecte = nrObiecte;
+	}
+
+	RaftAbstract(const RaftAbstract& r) {
+		this->capacitateMaxima = r.capacitateMaxima;
+		this->inaltimeRaft = r.inaltimeRaft;
+		this->areObiecte = r.areObiecte;
+		this->obiecte = new AbstractA * [r.nrObiecte];
+		for (int i = 0; i < r.nrObiecte; i++) {
+			this->obiecte[i] = r.obiecte[i];
+		}
+		this->nrObiecte = r.nrObiecte;
+	}
+
+	~RaftAbstract() {
+		delete[] this->obiecte;
+	}
+
+	int getCapacitateMax()  {
+		return this->capacitateMaxima;
+	}
+
+	void setCapacitateMax(int capacitateMaxima) {
+		this->capacitateMaxima = capacitateMaxima;
+	}
+
+	float getInaltimeRaft()  {
+		return this->inaltimeRaft;
+	}
+
+	void setInaltimeRaft(float inaltimeRaft) {
+		this->inaltimeRaft = inaltimeRaft;
+	}
+
+	bool getAreObiecte()  {
+		return this->areObiecte;
+	}
+
+	void setAreObiecte(bool areObiecte) {
+		this->areObiecte = areObiecte;
+	}
+
+	int getNumarObiecte() {
+		return this->nrObiecte;
+	}
+
+	void setNumarObiecte(int numar) {
+		nrObiecte = numar;
+		if (obiecte != nullptr) {
+			for (int i = 0; i < nrObiecte; i++) {
+				delete obiecte[i];
+			}
+			delete[] obiecte;
+		}
+		obiecte = new AbstractA * [nrObiecte];
+		for (int i = 0; i < nrObiecte; i++) {
+			obiecte[i] = new Tableta();
+		}
+	}
+
+	void setObiect(int index, AbstractA* obiect) {
+		if (index >= 0 && index < nrObiecte) {
+			obiecte[index] = obiect;
+		}
+	}
+
+	friend ostream& operator<<(ostream& out, const RaftAbstract& r);
+	friend istream& operator>>(istream& in, RaftAbstract& r);
+
+};
+
+ostream& operator<<(ostream& out, const RaftAbstract& r) {
+	out << "Capacitate maxima: " << r.capacitateMaxima << ", inaltime raft: " << r.inaltimeRaft << endl;
+	if (r.nrObiecte) {
+		out << "\nPe raft sunt obiecte!"<<endl;
+	}
+	else {
+		out << "\nPe raft nu sunt obiecte!"<<endl;
+	}
+	for (int i = 0; i < r.nrObiecte; i++) {
+		out << "Obiect " << i + 1 << ": ";
+		r.obiecte[i]->metodaAbstractaA();
+		out << "\n";
+	}
+	return out;
+}
+
+istream& operator>>(istream& in, RaftAbstract& r) {
+	in >> r.capacitateMaxima;
+	in >> r.nrObiecte;
+	r.obiecte = new AbstractA * [r.nrObiecte];
+	for (int i = 0; i < r.nrObiecte; i++) {
+		r.obiecte[i] = new Tableta();
+	}
+	return in;
+}
+
 void main() {
 	Imprimanta imprimanta;
 	imprimanta.afisareImprimanta();
@@ -1426,5 +1585,50 @@ void main() {
 	cout << "\nNivelul de presiune stilou: " << tg5.getNivelPresiune();
 	tg5.setSuportaTouch(false);
 	cout << "\nTableta grafica suporta touch: 1-Da, 0-Nu   " << tg5.getSuportaTouch();
+	cout << endl;
 
+	//Faza 8
+
+	AbstractA** vectorAbstract1 = new AbstractA * [10];
+	vectorAbstract1[0] = new Imprimanta(124, "HP");
+	vectorAbstract1[1] = new Tableta();
+	vectorAbstract1[2] = new Tableta(32, "iOS");
+	vectorAbstract1[3] = new Frigider();
+	vectorAbstract1[4] = new Frigider("Alb", 3);
+	vectorAbstract1[5] = new Imprimanta();
+	vectorAbstract1[6] = new Imprimanta();
+	vectorAbstract1[7] = new Tableta();
+	vectorAbstract1[8] = new Frigider();
+	vectorAbstract1[9] = new Frigider();
+	
+	for (int i = 0; i < 10; i++) {
+		vectorAbstract1[i]->metodaAbstractaA();
+		cout << endl;
+	}
+
+	cout << endl;
+	AbstractB** vectorAbstract2 = new AbstractB * [10];
+	vectorAbstract2[0] = new Imprimanta(124, "HP");
+	vectorAbstract2[1] = new Tableta();
+	vectorAbstract2[2] = new Tableta(32, "iOS");
+	vectorAbstract2[3] = new Frigider();
+	vectorAbstract2[4] = new Frigider("Alb", 3);
+	vectorAbstract2[5] = new Imprimanta();
+	vectorAbstract2[6] = new Imprimanta(126, "Canon");
+	vectorAbstract2[7] = new Tableta();
+	vectorAbstract2[8] = new Frigider();
+	vectorAbstract2[9] = new Tableta(32, "iOS");
+
+	for (int i = 0; i < 10; i++) {
+		vectorAbstract2[i]->metodaAbstractaB();
+		cout << endl;
+	}
+
+	//Clasa abstracta
+	RaftAbstract raft;
+	raft.setNumarObiecte(3);
+	raft.setObiect(0, new Imprimanta());
+	raft.setObiect(1, new Tableta());
+	raft.setObiect(2, new Frigider());
+	cout << raft;
 }
